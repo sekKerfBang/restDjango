@@ -1,12 +1,13 @@
 from django.shortcuts import render
 from .models import Product
-from django.http import JsonResponse
-from django.forms.models import model_to_dict
-from rest_framework.response import Response
+#from django.http import JsonResponse
+#from django.forms.models import model_to_dict
+#from rest_framework.response import Response
 from .serializers import ProductSerializers
-from rest_framework import authentication, generics, mixins, permissions
-from .permissions import IsStaffPermission
-from .authentications import TokenAuthentication
+from rest_framework import generics, mixins
+from api.mixins import StaffEditorPermissionsMixins
+
+#from .authentications import TokenAuthentication
 
 #  Les classes CBV de django sont geniale et facilite nos differents taches mais cette methode cree beaucoup de class 
 # mais on pouvait implementer toute ces fonctionnalites dans  une classe heritant de mixins et des autres classes
@@ -51,6 +52,7 @@ from .authentications import TokenAuthentication
 #     lookup_field = "pk"
 
 class ProductMixinsViews(
+    StaffEditorPermissionsMixins,
     generics.GenericAPIView,
     mixins.CreateModelMixin,
     mixins.DestroyModelMixin,
@@ -61,10 +63,12 @@ class ProductMixinsViews(
     queryset = Product.objects.all()
     serializer_class = ProductSerializers
     lookup_field = "pk"
-    authentication_classes = [authentication.TokenAuthentication, TokenAuthentication]
-    permission_classes = [permissions.IsAdminUser, IsStaffPermission]
+    # remplacer par un parametre par default de rest_framework #authentication_classes = [authentication.TokenAuthentication, TokenAuthentication]
+    #permission_classes = [permissions.IsAdminUser, IsStaffPermission]
     
     def perform_create(self, serializer):
+        email = serializer.validated_data.pop('email')
+        print(email)
         name = serializer.validated_data.get('name')
         content = serializer.validated_data.get('content') or None
         if content is None:
