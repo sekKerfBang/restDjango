@@ -1,16 +1,27 @@
 from rest_framework import serializers
 from .models import Product
 from rest_framework.reverse import reverse
+from .validators import validators_unique_product_name
+
 
 class ProductSerializers(serializers.ModelSerializer):
     my_discount = serializers.SerializerMethodField(read_only=True)
+    #Premiere methode pour inserer de l'url a un champs depuis le serializer
     #url = serializers.SerializerMethodField(read_only=True)
     url = serializers.HyperlinkedIdentityField(view_name='product:detail', lookup_field='pk')
     email = serializers.EmailField(write_only=True)
+    name = serializers.CharField(validators = [validators_unique_product_name])
     class Meta: 
         model = Product 
         fields = ('email', 'url', 'pk', 'name', 'content', 'price', 'my_discount')
         
+       
+       # Premiere methode de validation personnaliser avec le serializer  
+    # def validate_name(self, value):
+    #     qs = Product.objects.filter(name__iexact=value)
+    #     if qs.exists():
+    #         raise serializers.ValidationError(f"Le produit {value} existe daja dans la base de donnee ")
+    #     return value    
     # def create(self, validated_data):
     #     print(validated_data)
     #     email = validated_data.pop('email')
@@ -19,11 +30,12 @@ class ProductSerializers(serializers.ModelSerializer):
     #     #return Product.objects.create(**validate_data)
     #     obj = super().create(validated_data)
     #     return obj
-    def get_url(self, obj):
-        request = self.context.get('request')
-        if request is None:
-            return None 
-        return  reverse("product:detail", kwargs={'pk':obj.pk}, request=request)       #f'product/detail-product/{obj}'    
+    # La methode permettant de lire l'url 
+    # def get_url(self, obj):
+    #     request = self.context.get('request')
+    #     if request is None:
+    #         return None 
+    #     return  reverse("product:detail", kwargs={'pk':obj.pk}, request=request)       #f'product/detail-product/{obj}'    
         
     # def update(self, instance, validated_data):
     #     return super().update(instance, validated_data)
