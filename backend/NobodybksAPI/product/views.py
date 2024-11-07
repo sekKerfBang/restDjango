@@ -5,7 +5,7 @@ from .models import Product
 #from rest_framework.response import Response
 from .serializers import ProductSerializers
 from rest_framework import generics, mixins
-from api.mixins import StaffEditorPermissionsMixins
+from api.mixins import StaffEditorPermissionsMixins,UserQuerrySetMixin
 
 #from .authentications import TokenAuthentication
 
@@ -53,6 +53,7 @@ from api.mixins import StaffEditorPermissionsMixins
 
 class ProductMixinsViews(
     StaffEditorPermissionsMixins,
+    #UserQuerrySetMixin,
     generics.GenericAPIView,
     mixins.CreateModelMixin,
     mixins.DestroyModelMixin,
@@ -63,6 +64,7 @@ class ProductMixinsViews(
     queryset = Product.objects.all()
     serializer_class = ProductSerializers
     lookup_field = "pk"
+    #user_field = 'user'
     # remplacer par un parametre par default de rest_framework #authentication_classes = [authentication.TokenAuthentication, TokenAuthentication]
     #permission_classes = [permissions.IsAdminUser, IsStaffPermission]
     
@@ -73,14 +75,14 @@ class ProductMixinsViews(
         content = serializer.validated_data.get('content') or None
         if content is None:
             content = name        
-        serializer.save(content=content)
+        serializer.save(content=content, user=self.request.user)
         
     def perform_update(self, serializer):
         name = serializer.validated_data.get('name')
         content = serializer.validated_data.get('content') or None
         if content is None:
             content = name        
-        serializer.save(content=content)    
+        serializer.save(content=content, user=self.request.user)    
         
     
     
@@ -90,8 +92,8 @@ class ProductMixinsViews(
     def get(self, request, *args, **kwargs):
         pk = kwargs.get('pk')
         if pk is not None:
-            return self.retrieve(request, *args, **kwargs)
-        return self.list(request, *args, **kwargs)
+            return self.retrieve(self.request.user, *args, **kwargs)
+        return self.list(self.request.user, *args, **kwargs)
 
 
     def delete(self, request, *args, **kwargs):
@@ -103,6 +105,9 @@ class ProductMixinsViews(
     def patch(self, request, *args, **kwargs):
             return self.partial_update(request, *args, **kwargs)
         
-    def get_queryset(self):
-        return super().get_queryset().filter(name__icontains='')
+    
+        
+        
+    # def get_queryset(self):
+    #     return super().get_queryset().filter(name__icontains='')
     
