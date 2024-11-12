@@ -12,17 +12,17 @@ class ProductSerializers(serializers.ModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='product:detail', lookup_field='pk')
     email = serializers.EmailField(write_only=True)
     name = serializers.CharField(validators = [validators_unique_product_name])
-    #owner = serializers.SerializerMethodField(read_only=True)
+    owner = serializers.SerializerMethodField(read_only=True)
     #user_name = serializers.CharField(source='user.username', read_only=True)
     # Seconde methode de relation ou related field permettant de lier n'import quel table a un serializer
     #owner = UserPublicSerializer(source='user', read_only=True)
     class Meta: 
         model = Product 
-        fields = ( 'email', 'url', 'pk', 'name', 'content', 'price', 'my_discount', 'public')
+        fields = ( 'owner', 'email', 'url', 'pk', 'name', 'content', 'price', 'my_discount', 'public')
         
        
-    # def get_owner(self, obj):
-    #     return { 'username' : obj.user.username, 'id' : obj.user.pk }   
+    def get_owner(self, obj):
+        return { 'username' : obj.user.username, 'id' : obj.user.pk }   
     
        # Premiere methode de validation personnaliser avec le serializer  
     # def validate_name(self, value):

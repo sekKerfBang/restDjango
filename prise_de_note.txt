@@ -1,0 +1,11 @@
+ 
+JWT -> Jason Web Token en anglais JOT 
+Vous obtenew le token en vous authentifiant (Email et Password)
+Token a une dure de vie 
+il existe deux types de tokens : acces token et le refresh token
+le JOT oou JWT est un ensemble de trois partis
+
+1 - Headers : generalement ils donnent des informations sur le tokkens 
+2 - Payload : donne generalement des informations sur la personne authentifier affichant le username et Id.
+3 - Signature : utilise les informations contenant dans le headers, le payload et rajouter une cle secrete code sur une base64  
+

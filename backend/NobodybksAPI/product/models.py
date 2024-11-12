@@ -3,7 +3,7 @@ from django.conf import settings
 from django.db.models import Q
 
 User = settings.AUTH_USER_MODEL
-
+import random
 
 class ProductQuerySet(models.QuerySet):
     def is_public(self):
@@ -25,6 +25,7 @@ class ProductManager(models.Manager):
     def search(self, query, user=None):
         return self.get_query_set().is_public().search(query, user)
 class Product(models.Model):
+    TAGS_LIST = ["fruits", "voiture", "electronique"]
     user = models.ForeignKey(User, default=1, on_delete=models.SET_NULL, null=True)
     name = models.CharField(max_length=100)
     content = models.TextField(null=True, blank=True)
@@ -32,6 +33,12 @@ class Product(models.Model):
     public = models.BooleanField(default=True)
     
     objects = ProductManager()
+    
+    def is_public(self):
+        return self.public
+    
+    def get_tags_list(self):
+        return [random.choices(self.TAGS_LIST)]
     
     @property
     def get_discount(self):
